@@ -1,0 +1,13 @@
+version: '3'
+services:
+  wyoming-piper:
+    image: rhasspy/wyoming-piper
+    container_name: wyoming-piper
+    command: --voice en_amy-medium
+    volumes:
+      - ~/.rhasspy3-piper-data:/data
+    ports:
+      - "10200:10200"
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
