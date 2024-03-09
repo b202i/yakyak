@@ -18,8 +18,8 @@ module_dir = this_dir / module_name
 
 setup(
     name=module_name,
-    version='0.5.2',
-    description="Utility for using Wyoming-Piper.",
+    version='0.5.4',
+    description="Utility for generating synthetic voice with Wyoming-Piper.",
     packages=find_packages(),
     install_requires=requirements,
     long_description=long_description,
@@ -44,7 +44,7 @@ setup(
     keywords="utility synthetic-voice wyoming-piper tts",
     entry_points={
         'console_scripts': [
-            'yakyak = yakyak:__main__.run'
+            'yakyak = yakyak.__main__:main',
         ]
     },
 )

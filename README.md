@@ -25,7 +25,7 @@ The default docker_compose.yml is distributed in github.
 > sudo apt install ffmpeg
  
 ## Test YakYak, Wyoming-Piper and FFMPEG installation
-> piper -h localhost -t "mp3"
+> piper -h localhost -t mp3
  
 Observe successful test results  
 
@@ -39,7 +39,7 @@ As with many Linux applications, YakYak supports standard in, and standard out. 
 > yakyak --help
 
 Create an mp3 file with "Hello world"
-> echo Hello world | yakyak -f 'mp3' -o hello_world.mp3
+> echo Hello world | yakyak -f mp3 -o hello_world.mp3
 
 
 ## How to use YakYak from Python

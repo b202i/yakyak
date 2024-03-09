@@ -3,3 +3,7 @@
 .idea/
 __pycache__/
 run_test.mp3
+
+build/
+dist/
+yakyak.egg-info/

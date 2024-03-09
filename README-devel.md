@@ -2,6 +2,7 @@
 
 Python setup
 > pip install wheel
+> pip install build
 > pip install twine
 
 Purge generated content:  
