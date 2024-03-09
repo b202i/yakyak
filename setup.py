@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from pathlib import Path
 from setuptools import find_packages, setup
 
@@ -14,23 +15,20 @@ if requirements_path.is_file():
 
 module_name = "yakyak"
 module_dir = this_dir / module_name
-version_path = module_dir / "VERSION"
-version = version_path.read_text(encoding="utf-8").strip()
-
-data_files = [module_dir / "voices.json", version_path]
 
 setup(
-    name="yakyak",
-    version="0.0.50",
-    description="A utility for accessing Piper synthetic voice in Docker.",
-    package_dir={"": "yakyak"},
-    packages=find_packages(where="yakyak"),
+    name=module_name,
+    version='0.5.2',
+    description="Utility for using Wyoming-Piper.",
+    packages=find_packages(),
+    install_requires=requirements,
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/b202i/yakyak",
     author="MakerMattDesign",
     author_email="matt@makermattdesign.com",
     license="MIT",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Text Processing :: Linguistic",
@@ -43,10 +41,10 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Operating System :: OS Independent",
     ],
-    keywords="Utility for wyoming-piper tts",
-    install_requires=["bson >= 0.5.10"],
-    extras_require={
-        "dev": ["pytest>=7.0", "twine>=4.0.2"],
+    keywords="utility synthetic-voice wyoming-piper tts",
+    entry_points={
+        'console_scripts': [
+            'yakyak = yakyak:__main__.run'
+        ]
     },
-    python_requires=">=3.7",
 )

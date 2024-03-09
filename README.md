@@ -6,8 +6,7 @@ To install YakYak, this first step creates a python virtual environment and is o
 will be used everytime you want to run a python app.  A third step installs the yakyak package.
 
 Step 1, create a python virtual environment  
-> cd some_directory
-> python3 -m venv .venv
+> cd some_directory; python3 -m venv .venv
 
 Step 2, activate the virtual environment
 > source .venv/bin/activate
@@ -22,7 +21,7 @@ The default docker_compose.yml is distributed in github.
 ### Install ffmpeg for mac  
 > brew install ffmpeg
  
-Install ffmpeg for Ubuntu  
+### Install ffmpeg for Ubuntu  
 > sudo apt install ffmpeg
  
 ## Test YakYak, Wyoming-Piper and FFMPEG installation
