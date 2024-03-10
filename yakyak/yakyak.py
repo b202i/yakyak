@@ -20,8 +20,6 @@ from wyoming.tts import Synthesize, SynthesizeVoice
 DEFAULT_VOICE = "en_US-amy-medium"
 FFMPEG_NOT_FOUND = "ffmpeg is not installed or not found in PATH"
 
-logging.basicConfig(level=logging.INFO)
-
 
 class WyomingTtsClient:
     def __init__(self, host: str, port: int) -> None:
@@ -132,7 +130,7 @@ def run_test(host: str, port: int, audio_format: str):
     logging.debug(f"Starting test {audio_format}, host: {host}:{port}")
 
     if is_server_online(host, port):
-        logging.info(f"Server {host}:{port} is online")
+        logging.debug(f"Server {host}:{port} is online")
 
         with tempfile.NamedTemporaryFile(delete=True) as temp_file:
             test_file_path = temp_file.name

@@ -2,16 +2,14 @@
 A utility for the generation of synthetic voice through use of Wyoming-Piper.
 
 ## Install YakYak, Docker Compose & FFMPEG
-To install YakYak, this first step creates a python virtual environment and is only performed one time. The second step 
-will be used everytime you want to run a python app.  A third step installs the yakyak package.
+To install YakYak, this first step is to create a python virtual environment.
 
-Step 1, create a python virtual environment  
-> cd some_directory; python3 -m venv .venv
-
-Step 2, activate the virtual environment
+Step 1, create a python virtual environment and activate it
+> cd some_directory  
+> python3 -m venv .venv  
 > source .venv/bin/activate
 
-Step 3, install the yakyak package
+Step 2, install the yakyak package
 > pip install yakyak
  
 ### Setup wyoming-piper in docker, on your local area network.   
@@ -25,6 +23,8 @@ The default docker_compose.yml is distributed in github.
 > sudo apt install ffmpeg
  
 ## Test YakYak, Wyoming-Piper and FFMPEG installation
+It will take a little longer the first time running YakYak, 
+the Wyoming-Piper app needs time to download voice files.
 > piper -h localhost -t mp3
  
 Observe successful test results  
@@ -38,9 +38,15 @@ INFO:root:Success, test: mp3
 As with many Linux applications, YakYak supports standard in, and standard out. It also supports file input with the -i command and -o for file output. For a complete set of commands type yakyak --help.
 > yakyak --help
 
-Create an mp3 file with "Hello world"
+Create an mp3 file with "Hello world"  
 > echo Hello world | yakyak -f mp3 -o hello_world.mp3
 
+If you are on Linux and have aplay installed, you can do this:  
+> echo Hello world | yakyak | aplay
+This assumes that Docker is running on the same machine.
+
+If Docker is running on a different machine on your network, you can do this:  
+> echo Hello world | yakyak --host a_different_machine.local | aplay
 
 ## How to use YakYak from Python
 Create the file `test_yakyak.py` with the following content:  
@@ -61,12 +67,13 @@ print(f"{piper_tts_server(
         'en_US-amy-medium'
         )=}")
 ```
+> python3 test_yakyak.py  
 Observe that the server is online and a file hello_world.mp3 is created. Play the mp3 and you will hear "Hello world".
 
 ## Python run.py Test
 
 From the command line type `python3 run.py` will produce the following when successful:
-
+> python3 run.py
 ```text
 run.py 
 check_ffmpeg_version()='ffmpeg version 6.0 Copyright (c) 2000-2023 the FFmpeg developers'

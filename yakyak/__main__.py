@@ -75,7 +75,7 @@ def main():
         tts_message = get_input_file(args.input_file)
 
     if is_server_online(args.host, args.port):
-        logging.info(f"Server {args.host}:{args.port} is online")
+        logging.debug(f"Server {args.host}:{args.port} is online")
         asyncio.run(
             piper_tts_server(args.host, args.port, tts_message, args.output_file, args.audio_format, args.voice)
         )
