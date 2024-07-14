@@ -3,7 +3,7 @@ services:
   wyoming-piper:
     image: rhasspy/wyoming-piper
     container_name: wyoming-piper
-    command: --voice en_amy-medium
+    command: --voice en_US-amy-medium
     volumes:
       - ~/.rhasspy3-piper-data:/data
     ports:
