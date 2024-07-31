@@ -28,7 +28,7 @@ The default docker_compose.yml is distributed in github.
 ## Test YakYak, Wyoming-Piper and FFMPEG installation
 It will take a little longer the first time running YakYak, 
 the Wyoming-Piper app needs time to download voice files.
-> piper -h localhost -t mp3
+> yakyak -t mp3
  
 Observe successful test results  
 
