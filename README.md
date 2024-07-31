@@ -36,7 +36,11 @@ Observe successful test results
 INFO:root:Server localhost:10200 is online
 INFO:root:Success, test: mp3
 ```
-
+Use standard in to create an mp3 file and play it.
+On mac use `afplay` on linux user `aplay`
+> echo lets test yakyak | yakyak -o test.mp3 -f mp3  
+> afplay test.mp3  
+ 
 ## How to use YakYak from the command line
 As with many Linux applications, YakYak supports standard in, and standard out. It also supports file input with the -i command and -o for file output. For a complete set of commands type yakyak --help.
 > yakyak --help
