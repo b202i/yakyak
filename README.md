@@ -1,11 +1,8 @@
 # YakYak
-YakYak is a utility for the generation of synthetic voice through use of Wyoming-Piper.
-It can be used from the command line or called from python. It opens a TCP socket to
-Wyoming-Piper running in Docker anywhere on your local area network. It scales to run 
-efficiently on large multi-core computers or small single board computers.
+YakYak is a utility for the generation of synthetic voice through use of Wyoming-Piper. It can be used from the command line or called from python. It opens a TCP socket to Wyoming-Piper running in Docker anywhere on your local area network. It scales to run efficiently on large multi-core computers or small single board computers.
 
 ## Install YakYak, Docker Compose & FFMPEG
-To install YakYak, python virtual environment is recommended.
+To install YakYak, a python virtual environment is recommended.
 
 Step 1, create a python virtual environment and activate it
 > cd some_directory  
@@ -16,7 +13,7 @@ Step 2, install the yakyak package
 > pip install yakyak
  
 ### Setup wyoming-piper in docker, on your local area network.   
-The default docker_compose.yml is distributed in github.  
+The default docker-compose.yml is distributed in github.  
 > docker compose up -d
  
 ### Install ffmpeg for mac  
