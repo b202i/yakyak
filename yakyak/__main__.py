@@ -75,6 +75,7 @@ def main():
         "    tty: true\n"
         "    restart: unless-stopped\n"
         )
+        return
 
     if args.test:
         if args.test == 'mp3':
