@@ -32,3 +32,13 @@ Upload final version to PyPi server
 ```bash
 twine upload dist/*
 ```
+
+## Upgrade Packages with PIP
+List outdated packages
+```bash
+pip list --outdated                                                 
+```
+Update outdated packages
+```bash
+pip install --upgrade $(pip list --outdated | awk 'NR>2 {print $1}')
+```
