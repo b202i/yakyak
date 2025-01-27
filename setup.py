@@ -9,17 +9,21 @@ this_dir = Path(__file__).parent
 
 requirements = []
 requirements_path = this_dir / "requirements.txt"
+
 if requirements_path.is_file():
     with open(requirements_path, "r", encoding="utf-8") as requirements_file:
         requirements = requirements_file.read().splitlines()
+else:
+    print(f"ERROR: Requirements file missing: {requirements_path}")
+    raise FileNotFoundError(f"Requirements file missing: {requirements_path}")
 
 module_name = "yakyak"
 module_dir = this_dir / module_name
 
 setup(
     name=module_name,
-    version='0.5.4',
-    description="Utility for generating synthetic voice with Wyoming-Piper.",
+    version='1.6.3',
+    description="Utility for local generation of synthetic voice using Wyoming-Piper.",
     packages=find_packages(),
     install_requires=requirements,
     long_description=long_description,
@@ -30,7 +34,7 @@ setup(
     license="MIT",
     python_requires=">=3.7",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Topic :: Text Processing :: Linguistic",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
@@ -39,6 +43,8 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Operating System :: OS Independent",
     ],
     keywords="utility synthetic-voice wyoming-piper tts",

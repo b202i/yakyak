@@ -7,12 +7,13 @@ import io
 import logging
 import os
 import socket
+import soundfile as sf
 import subprocess
 import sys
 import tempfile
 import wave
 
-from pydub import AudioSegment
+from io import BytesIO
 from wyoming.audio import AudioChunk, AudioStop
 from wyoming.client import AsyncTcpClient
 from wyoming.tts import Synthesize, SynthesizeVoice
@@ -91,12 +92,13 @@ async def piper_tts_server(
     """Output can be to mp3 or wav and to stdout or a file"""
     try:
         if audio_data:
-            # Convert WAV to MP3 if needed
+            # Assume audio_data is a byte string of WAV data
             if audio_format == 'mp3':
-                audio = AudioSegment.from_wav(io.BytesIO(audio_data))
-                audio_data = io.BytesIO()
-                audio.export(audio_data, format='mp3')
-                audio_data = audio_data.getvalue()  # Wav data replaced with mp3 data
+                with BytesIO() as mp3_buffer:
+                    with BytesIO(audio_data) as wav_buffer:
+                        data, samplerate = sf.read(wav_buffer)
+                        sf.write(mp3_buffer, data, samplerate, format='mp3')
+                        audio_data = mp3_buffer.getvalue()
 
             # Output to stdout or file
             if output_file == 'stdout':

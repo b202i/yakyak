@@ -36,6 +36,8 @@ def main():
                         help='Print debug messages to console')
     parser.add_argument('--host', type=str, default='localhost',
                         help='Hostname or IP address')
+    parser.add_argument('-d', '--docker', action='store_true',
+                        help='Print example docker-compose.yml to stdout')
     parser.add_argument('-p', '--port', type=int, default=10200,
                         help='Server port (default: 10200)')
     parser.add_argument('-f', '--audio-format', type=str, choices=['mp3', 'wav'], default='mp3',
@@ -48,8 +50,6 @@ def main():
                         help='Onnx voice model file')
     parser.add_argument('--output-raw', '--output_raw', action='store_true',
                         help='Stream raw audio to stdout')
-    # parser.add_argument('-s', '--speaker', type=int, default=0,
-    #                     help='Id of speaker (default: 0)')
     parser.add_argument('-t', '--test', type=str, choices=['mp3', 'wav'],
                         help='Output format to end test')
 
@@ -58,6 +58,24 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
+
+    if args.docker:
+        print(
+        "version: '3'\n"
+        "services:\n"
+        "  wyoming-piper:\n"
+        "    image: rhasspy/wyoming-piper\n"
+        "    container_name: wyoming-piper\n"
+        "    command: --voice en_amy-medium\n"
+        "    volumes:\n"
+        "      - ~/.rhasspy3-piper-data:/data\n"
+        "    ports:\n"
+        "      - \"10200:10200\"\n"
+        "    stdin_open: true\n"
+        "    tty: true\n"
+        "    restart: unless-stopped\n"
+        )
+        return
 
     if args.test:
         if args.test == 'mp3':

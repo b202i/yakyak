@@ -1,2 +1,2 @@
-pydub==0.25.1
-wyoming==1.5.3
+soundfile>=0.13.0
+wyoming>=1.5.4

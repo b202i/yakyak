@@ -1,20 +1,34 @@
 # YakYak Developer Notes
 
 Python setup
-> pip install wheel
-> pip install build
-> pip install twine
+```bash
+pip install wheel
+pip install build
+pip install twine
+```
 
 Purge generated content:  
-> rm -rf build/ dist/ yakyak/yakyak_makermattdesign.egg-info
+```bash
+rm -rf build/ dist/ yakyak.egg-info/
+```
 
 Generate repository artifacts  
-> python setup.py bdist_wheel sdist
-> python3 -m build
+```bash
+python3 -m build
+```
  
-Upload the package to the PyPi test server
-> twine upload -r testpypi dist/*
+Upload the package to the PyPi test server.
+```bash
+twine upload -r testpypi dist/*
+```
+Note that when testing with the test.pypi.org server, it might not have wyoming or soundfile. You will need to install these first from the standard pypi.org server.
+```bash
+pip install wyoming
+pip install soundfile
+pip install -i https://test.pypi.org/simple/ yakyak==1.6.3
+```
 
 Upload final version to PyPi server
-> twine upload dist/*
-
+```bash
+twine upload dist/*
+```
