@@ -45,7 +45,7 @@ docker compose up -d --force-recreate
 It will take a little longer the first time running YakYak, 
 the Wyoming-Piper app needs time to download voice files.
 ```bash
-piper -h localhost -t mp3
+yakyak --host localhost -t mp3
 ```
  
 Observe successful test results  
