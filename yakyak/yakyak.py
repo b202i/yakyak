@@ -7,13 +7,11 @@ import io
 import logging
 import os
 import socket
-import soundfile as sf
 import subprocess
 import sys
 import tempfile
 import wave
 
-from io import BytesIO
 from wyoming.audio import AudioChunk, AudioStop
 from wyoming.client import AsyncTcpClient
 from wyoming.tts import Synthesize, SynthesizeVoice
@@ -94,11 +92,45 @@ async def piper_tts_server(
         if audio_data:
             # Assume audio_data is a byte string of WAV data
             if audio_format == 'mp3':
-                with BytesIO() as mp3_buffer:
-                    with BytesIO(audio_data) as wav_buffer:
-                        data, samplerate = sf.read(wav_buffer)
-                        sf.write(mp3_buffer, data, samplerate, format='mp3')
-                        audio_data = mp3_buffer.getvalue()
+                # Use ffmpeg to convert WAV to MP3 with specified options
+                with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as wav_temp:
+                    wav_temp.write(audio_data)
+                    wav_temp.flush()
+                    wav_temp_path = wav_temp.name
+
+                try:
+                    with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as mp3_temp:
+                        mp3_temp_path = mp3_temp.name
+
+                    # Run ffmpeg with specified options
+                    # ffmpeg -i input.wav -ar 44100 -ab 128k -ac 2 -f mp3 -y output.mp3
+                    ffmpeg_cmd = [
+                        'ffmpeg',
+                        '-i', wav_temp_path,
+                        '-ar', '44100',
+                        '-ab', '128k',
+                        '-ac', '2',
+                        '-f', 'mp3',
+                        '-y',
+                        mp3_temp_path
+                    ]
+
+                    result = subprocess.run(
+                        ffmpeg_cmd,
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+
+                    # Read the MP3 data
+                    with open(mp3_temp_path, 'rb') as f:
+                        audio_data = f.read()
+
+                    # Clean up temp MP3 file
+                    os.remove(mp3_temp_path)
+                finally:
+                    # Clean up temp WAV file
+                    os.remove(wav_temp_path)
 
             # Output to stdout or file
             if output_file == 'stdout':
@@ -111,6 +143,8 @@ async def piper_tts_server(
         logging.error(f"Error {e}")
     except IOError as e:
         logging.error(f"Error {e}")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"ffmpeg error: {e.stderr}")
 
 
 def is_server_online(host: str, port: int) -> bool:

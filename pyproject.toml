@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yakyak"
+version = "1.7.0"
+description = "Utility for local generation of synthetic voice using Wyoming-Piper"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "MakerMattDesign", email = "matt@makermattdesign.com"}
+]
+keywords = ["utility", "synthetic-voice", "wyoming-piper", "tts", "ffmpeg", "audio"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Text Processing :: Linguistic",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "soundfile>=0.13.0",
+    "wyoming>=1.5.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/b202i/yakyak"
+"Bug Tracker" = "https://github.com/b202i/yakyak/issues"
+Documentation = "https://github.com/b202i/yakyak#readme"
+"Source Code" = "https://github.com/b202i/yakyak"
+
+[project.scripts]
+yakyak = "yakyak.__main__:main"
+

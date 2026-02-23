@@ -1,9 +1,42 @@
-.DS_Store
-.venv/
+# IDE and Editor
+.vscode/
 .idea/
-__pycache__/
-run_test.mp3
+*.swp
+*.swo
+*~
+.DS_Store
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+.Python
 build/
 dist/
-yakyak.egg-info/
+*.so
+.coverage
+htmlcov/
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Test and Temporary Files
+*.mp3
+*.wav
+test_*.py
+run_test.*
+*.tmp
+
+# IDE
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS
+.DS_Store
+Thumbs.db

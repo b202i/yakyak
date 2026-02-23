@@ -22,13 +22,18 @@ module_dir = this_dir / module_name
 
 setup(
     name=module_name,
-    version='1.6.3',
+    version='1.7.0',
     description="Utility for local generation of synthetic voice using Wyoming-Piper.",
     packages=find_packages(),
     install_requires=requirements,
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/b202i/yakyak",
+    project_urls={
+        "Bug Tracker": "https://github.com/b202i/yakyak/issues",
+        "Documentation": "https://github.com/b202i/yakyak#readme",
+        "Source Code": "https://github.com/b202i/yakyak",
+    },
     author="MakerMattDesign",
     author_email="matt@makermattdesign.com",
     license="MIT",
@@ -47,7 +52,7 @@ setup(
         "Programming Language :: Python :: 3.13",
         "Operating System :: OS Independent",
     ],
-    keywords="utility synthetic-voice wyoming-piper tts",
+    keywords="utility synthetic-voice wyoming-piper tts ffmpeg audio",
     entry_points={
         'console_scripts': [
             'yakyak = yakyak.__main__:main',
