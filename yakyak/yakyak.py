@@ -180,9 +180,7 @@ def run_test(host: str, port: int, audio_format: str):
                 audio_format,
                 DEFAULT_VOICE)
         )
-        file_exists = os.path.exists(test_file_path)
-        file_len = os.path.getsize(test_file_path)
-        if file_exists and file_len > 0:
+        if os.path.exists(test_file_path) and os.path.getsize(test_file_path) > 0:
             os.remove(test_file_path)
             msg = "Success, test: " + audio_format
             logging.info(msg)

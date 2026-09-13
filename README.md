@@ -127,3 +127,22 @@ await piper_tts_server(
 
 Process finished with exit code 0
 ```
+
+## Error handling
+
+The Python helpers do not share a single error-handling contract:
+
+| Helper | Return values and failure behavior |
+|--------|------------------------------------|
+| `is_server_online(host, port)` | Returns `True` if a TCP connection succeeds; otherwise returns `False`, including for handled socket errors. A successful check does not guarantee that subsequent synthesis will succeed. |
+| `piper_tts_server(...)` | An async function that must be awaited, or called with `asyncio.run(...)` outside an existing event loop. Returns `None` on success and on handled failures, so its return value is not a success indicator. Handled connection, output I/O, and FFmpeg process errors are logged; other exceptions may propagate. |
+| `run_test(host, port, audio_format)` | Returns `(True, message)` for non-empty output and `(False, message)` for an offline server or missing/empty output. Raises `ValueError` for formats other than `mp3` or `wav`. Other errors, such as temporary-file access or cleanup failures, may propagate. It uses `asyncio.run` internally and cannot be called directly from a running event loop. |
+| `check_ffmpeg_version()` | Returns version information or a diagnostic string. If the `ffmpeg` executable is missing, it raises `FileNotFoundError`; the missing-FFmpeg diagnostic string is returned when the executable runs but exits with an error. |
+
+Check the `run_test` status tuple when using it from Python. For direct synthesis,
+inspect the logs and the output: a `None` return does not establish success, and
+an existing output file could be left over from an earlier invocation.
+
+The CLI logs handled failures but does not consistently translate them into
+nonzero exit codes. In particular, `--test` discards the status tuple returned by
+`run_test`, so a zero exit code alone does not prove that synthesis succeeded.
