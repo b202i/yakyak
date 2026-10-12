@@ -11,12 +11,24 @@ import subprocess
 import sys
 import tempfile
 import wave
+from pathlib import Path
+from urllib.request import urlretrieve
 
 from wyoming.audio import AudioChunk, AudioStop
 from wyoming.client import AsyncTcpClient
 from wyoming.tts import Synthesize, SynthesizeVoice
 
 DEFAULT_VOICE = "en_US-amy-medium"
+DEFAULT_KOKORO_VOICE = "af_heart"
+KOKORO_LANGUAGE = "en-us"
+KOKORO_MODEL_URL = (
+    "https://github.com/thewh1teagle/kokoro-onnx/releases/download/"
+    "model-files-v1.1/kokoro-v1.0.onnx"
+)
+KOKORO_VOICES_URL = (
+    "https://github.com/thewh1teagle/kokoro-onnx/releases/download/"
+    "model-files-v1.1/voices-v1.0.bin"
+)
 FFMPEG_NOT_FOUND = "ffmpeg is not installed or not found in PATH"
 
 
@@ -90,61 +102,103 @@ async def piper_tts_server(
     """Output can be to mp3 or wav and to stdout or a file"""
     try:
         if audio_data:
-            # Assume audio_data is a byte string of WAV data
-            if audio_format == 'mp3':
-                # Use ffmpeg to convert WAV to MP3 with specified options
-                with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as wav_temp:
-                    wav_temp.write(audio_data)
-                    wav_temp.flush()
-                    wav_temp_path = wav_temp.name
-
-                try:
-                    with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as mp3_temp:
-                        mp3_temp_path = mp3_temp.name
-
-                    # Run ffmpeg with specified options
-                    # ffmpeg -i input.wav -ar 44100 -ab 128k -ac 2 -f mp3 -y output.mp3
-                    ffmpeg_cmd = [
-                        'ffmpeg',
-                        '-i', wav_temp_path,
-                        '-ar', '44100',
-                        '-ab', '128k',
-                        '-ac', '2',
-                        '-f', 'mp3',
-                        '-y',
-                        mp3_temp_path
-                    ]
-
-                    result = subprocess.run(
-                        ffmpeg_cmd,
-                        capture_output=True,
-                        text=True,
-                        check=True
-                    )
-
-                    # Read the MP3 data
-                    with open(mp3_temp_path, 'rb') as f:
-                        audio_data = f.read()
-
-                    # Clean up temp MP3 file
-                    os.remove(mp3_temp_path)
-                finally:
-                    # Clean up temp WAV file
-                    os.remove(wav_temp_path)
-
-            # Output to stdout or file
-            if output_file == 'stdout':
-                sys.stdout.buffer.write(audio_data)  # Use buffer for binary data
-                sys.stdout.flush()
-            else:
-                with open(output_file, "wb") as f:
-                    f.write(audio_data)
+            _write_audio_data(audio_data, output_file, audio_format)
     except PermissionError as e:
         logging.error(f"Error {e}")
     except IOError as e:
         logging.error(f"Error {e}")
     except subprocess.CalledProcessError as e:
         logging.error(f"ffmpeg error: {e.stderr}")
+
+
+def _write_audio_data(audio_data: bytes, output_file: str, audio_format: str) -> None:
+    if audio_format == "mp3":
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as wav_temp:
+            wav_temp.write(audio_data)
+            wav_temp_path = wav_temp.name
+
+        mp3_temp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as mp3_temp:
+                mp3_temp_path = mp3_temp.name
+
+            subprocess.run(
+                ["ffmpeg", "-i", wav_temp_path, "-ar", "44100", "-ab", "128k", "-ac", "2", "-f", "mp3", "-y", mp3_temp_path],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            with open(mp3_temp_path, "rb") as mp3_file:
+                audio_data = mp3_file.read()
+        finally:
+            os.remove(wav_temp_path)
+            if mp3_temp_path and os.path.exists(mp3_temp_path):
+                os.remove(mp3_temp_path)
+
+    if output_file == "stdout":
+        sys.stdout.buffer.write(audio_data)
+        sys.stdout.flush()
+    else:
+        with open(output_file, "wb") as output:
+            output.write(audio_data)
+
+
+def _download_kokoro_assets() -> tuple[Path, Path]:
+    cache_dir = Path(os.environ.get("YAKYAK_CACHE_DIR", Path.home() / ".cache" / "yakyak")) / "kokoro"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    assets = (
+        (cache_dir / "kokoro-v1.0.onnx", KOKORO_MODEL_URL),
+        (cache_dir / "voices-v1.0.bin", KOKORO_VOICES_URL),
+    )
+
+    for asset_path, url in assets:
+        if asset_path.is_file():
+            continue
+
+        temporary_path = asset_path.with_suffix(asset_path.suffix + ".download")
+        try:
+            urlretrieve(url, temporary_path)
+            temporary_path.replace(asset_path)
+        finally:
+            if temporary_path.exists():
+                temporary_path.unlink()
+
+    return assets[0][0], assets[1][0]
+
+
+async def kokoro_tts_server(
+        tts_text: str,
+        output_file: str = "output.mp3",
+        audio_format: str = "mp3",
+        voice: str = DEFAULT_KOKORO_VOICE,
+        language: str = KOKORO_LANGUAGE,
+        speed: float = 1.0,
+):
+    if audio_format not in ("mp3", "wav"):
+        raise ValueError("audio_format must be 'mp3' or 'wav'")
+    if not 0.5 <= speed <= 2.0:
+        raise ValueError("speed must be between 0.5 and 2.0")
+
+    try:
+        from kokoro_onnx import Kokoro
+    except ImportError as error:
+        raise RuntimeError(
+            "Kokoro support requires kokoro-onnx and Python 3.10 through 3.13"
+        ) from error
+
+    import soundfile
+
+    model_path, voices_path = _download_kokoro_assets()
+    kokoro = Kokoro(str(model_path), str(voices_path))
+    audio, sample_rate = await asyncio.to_thread(
+        kokoro.create, tts_text, voice=voice, speed=speed, lang=language
+    )
+
+    with io.BytesIO() as wav_io:
+        soundfile.write(wav_io, audio, sample_rate, format="WAV")
+        audio_data = wav_io.getvalue()
+
+    _write_audio_data(audio_data, output_file, audio_format)
 
 
 def is_server_online(host: str, port: int) -> bool:
@@ -159,7 +213,7 @@ def is_server_online(host: str, port: int) -> bool:
         return False
 
 
-def run_test(host: str, port: int, audio_format: str):
+def run_test(host: str, port: int, audio_format: str, voice: str = DEFAULT_VOICE):
     if audio_format not in ['mp3', 'wav']:
         raise ValueError("audio_format must be 'mp3' or 'wav'")
 
@@ -178,7 +232,7 @@ def run_test(host: str, port: int, audio_format: str):
                 "Hello world",
                 test_file_path,
                 audio_format,
-                DEFAULT_VOICE)
+                voice)
         )
         if os.path.exists(test_file_path) and os.path.getsize(test_file_path) > 0:
             os.remove(test_file_path)
@@ -196,6 +250,27 @@ def run_test(host: str, port: int, audio_format: str):
         msg = f"Server {host}:{port} is offline"
         logging.info(msg)
         return False, msg
+
+
+def run_kokoro_test(
+        audio_format: str,
+        voice: str = DEFAULT_KOKORO_VOICE,
+        language: str = KOKORO_LANGUAGE,
+        speed: float = 1.0,
+):
+    if audio_format not in ("mp3", "wav"):
+        raise ValueError("audio_format must be 'mp3' or 'wav'")
+
+    with tempfile.TemporaryDirectory() as temporary_dir:
+        test_file_path = os.path.join(temporary_dir, "kokoro-test." + audio_format)
+        asyncio.run(
+            kokoro_tts_server(
+                "Hello world", test_file_path, audio_format, voice, language, speed
+            )
+        )
+        if os.path.exists(test_file_path) and os.path.getsize(test_file_path) > 0:
+            return True, f"Success, Kokoro test: {audio_format}"
+        return False, f"Fail, Kokoro test: {audio_format}"
 
 
 def check_ffmpeg_version() -> str:

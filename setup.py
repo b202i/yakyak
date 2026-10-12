@@ -22,8 +22,8 @@ module_dir = this_dir / module_name
 
 setup(
     name=module_name,
-    version='1.7.0',
-    description="Utility for local generation of synthetic voice using Wyoming-Piper.",
+    version='1.8.0',
+    description="Python client for Wyoming and local Kokoro text-to-speech.",
     packages=find_packages(),
     install_requires=requirements,
     long_description=long_description,
@@ -50,9 +50,10 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Operating System :: OS Independent",
     ],
-    keywords="utility synthetic-voice wyoming-piper tts ffmpeg audio",
+    keywords="utility synthetic-voice wyoming wyoming-piper kokoro tts ffmpeg audio",
     entry_points={
         'console_scripts': [
             'yakyak = yakyak.__main__:main',

@@ -29,6 +29,7 @@ env/
 *.mp3
 *.wav
 test_*.py
+!tests/test_*.py
 run_test.*
 *.tmp
 

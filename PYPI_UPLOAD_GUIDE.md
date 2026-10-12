@@ -1,11 +1,11 @@
-# PyPI Upload Guide for YakYak v1.7.0
+# PyPI Upload Guide for YakYak v1.8.0
 
 ## What Changed
 
-- **FFmpeg integration**: MP3 encoding with fixed specs (44100 Hz, 128 kb/s, stereo)
-- **Modern packaging**: Added pyproject.toml (PEP 517/518 compliant)
-- **Enhanced metadata**: Added project URLs and keywords
-- **Code quality**: Removed unused imports, improved error handling
+- **Kokoro integration**: Local Kokoro voices with voice, language, speed, WAV, and MP3 options
+- **Piper updates**: Dedicated YakYak cache location and refreshed voice catalog
+- **CLI and API**: Backend selection, Kokoro helpers, and clearer invalid-voice errors
+- **Tests and docs**: Minimal offline unit suite, Kokoro examples, and release notes
 
 ## Quick Upload (Recommended: Test First)
 
@@ -28,34 +28,34 @@ password = pypi-YOUR_TOKEN_HERE
 
 ### Step 3: Test Upload (Optional but Recommended)
 ```bash
-python -m twine upload -r testpypi dist/yakyak-1.7.0*
+python -m twine upload -r testpypi dist/yakyak-1.8.0*
 ```
 
 Then test installation:
 ```bash
-pip install -i https://test.pypi.org/simple/ yakyak==1.7.0
+pip install -i https://test.pypi.org/simple/ yakyak==1.8.0
 ```
 
 ### Step 4: Production Upload
 ```bash
 cd /Users/matt/github/yakyak
-python -m twine upload dist/yakyak-1.7.0*
+python -m twine upload dist/yakyak-1.8.0*
 ```
 
 ### Step 5: Verify
-Visit: https://pypi.org/project/yakyak/ and confirm version 1.7.0 appears
+Visit: https://pypi.org/project/yakyak/ and confirm version 1.8.0 appears
 
 ## Post-Upload Verification
 
 ```bash
 # Install from PyPI
-pip install --upgrade yakyak==1.7.0
+pip install --upgrade yakyak==1.8.0
 
 # Verify installation
 yakyak --help
 
 # Test ffmpeg integration
-echo "Hello world" | yakyak -f mp3 -o verify.mp3
+echo "Hello world" | yakyak --backend kokoro -v af_heart -f mp3 -o verify.mp3
 ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate,bit_rate,channels -of default=noprint_wrappers=1 verify.mp3
 ```
 
@@ -66,8 +66,8 @@ Expected audio specs:
 
 ## Files Ready
 
-- **yakyak-1.7.0-py3-none-any.whl** - Universal wheel (in dist/)
-- **yakyak-1.7.0.tar.gz** - Source distribution (in dist/)
+- **yakyak-1.8.0-py3-none-any.whl** - Universal wheel (in dist/)
+- **yakyak-1.8.0.tar.gz** - Source distribution (in dist/)
 
 ## Future Releases
 

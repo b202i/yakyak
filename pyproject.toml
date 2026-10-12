@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yakyak"
-version = "1.7.0"
-description = "Utility for local generation of synthetic voice using Wyoming-Piper"
+version = "1.8.0"
+description = "Python client for Wyoming and local Kokoro text-to-speech"
 readme = "README.md"
 requires-python = ">=3.7"
 license = {text = "MIT"}
 authors = [
     {name = "MakerMattDesign", email = "matt@makermattdesign.com"}
 ]
-keywords = ["utility", "synthetic-voice", "wyoming-piper", "tts", "ffmpeg", "audio"]
+keywords = ["utility", "synthetic-voice", "wyoming", "wyoming-piper", "kokoro", "tts", "ffmpeg", "audio"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Topic :: Text Processing :: Linguistic",
@@ -25,11 +25,13 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
 ]
 dependencies = [
     "soundfile>=0.13.0",
     "wyoming>=1.5.4",
+    "kokoro-onnx>=0.6.1; python_version >= '3.10' and python_version < '3.14'",
 ]
 
 [project.urls]
