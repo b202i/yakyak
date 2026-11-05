@@ -84,6 +84,61 @@ yakyak --backend kokoro -v af_heart --language en-us \
 
 Use `--language` to choose the voice language (for example, `en-us` or `en-gb`) and `--speed` to set a rate from 0.5 to 2.0. Use `-f mp3` for MP3 output; MP3 conversion requires `ffmpeg`. Kokoro is selected explicitly with `--backend kokoro`; YakYak continues to use Wyoming-Piper by default.
 
+## Benchmark speech generation
+
+Use `-b` or `--benchmark` to measure **speech duration / wall-clock time**.
+A ratio of `1.0x` means 10 seconds of speech took 10 seconds to generate;
+`2.0x` means it took 5 seconds. Higher is faster.
+
+```bash
+# Local Kokoro (Python 3.10–3.13)
+yakyak -b --backend kokoro --voice af_heart
+
+# Existing local or remote Wyoming-Piper service
+yakyak --benchmark --host localhost --voice en_US-amy-medium
+yakyak -b --host flik.local --voice en_US-amy-medium
+
+# More runs or a custom text file
+yakyak -b --backend kokoro -v af_heart --benchmark-runs 5
+yakyak -b --backend kokoro -v af_heart -i passage.txt --benchmark-timeout 1200
+```
+
+The default passage is:
+
+> The quick brown fox jumps over the lazy dog. On a quiet morning, a friendly
+> voice reads the news and explains a simple idea. At seven thirty, the train
+> leaves the station. Which platform should we use? Clear speech should handle
+> short sentences, longer phrases, and natural pauses.
+
+Benchmark mode uses this text immediately; it does not wait for or consume stdin.
+Use `-i` to supply a different passage. Existing `--voice`, `--backend`, `--host`,
+`--port`, `--language`, and `--speed` options apply to the selected backend.
+`af_heart` is a Kokoro voice; use it with `--backend kokoro`.
+
+Each benchmark performs **one excluded warm-up**, allowing a new voice/model to
+download, followed by three measured runs (`--benchmark-runs` changes the count).
+Every attempt starts a fresh YakYak process. Wall time includes process startup,
+imports, model loading, synthesis, WAV output, and any Wyoming network transfer.
+WAV validation and report printing are outside the timer. For a benchmark invoked
+through SSH or `docker exec`, the outer SSH/container launch is outside the timer.
+This measures full CLI generation time, including model reloads after warm-up.
+
+Output lists speech seconds, wall seconds, and their ratio for each attempt.
+The overall ratio is total measured speech seconds divided by total measured
+wall seconds; warm-up is never included. `--benchmark-timeout` defaults to 600
+seconds per attempt, including the warm-up.
+
+Temporary PCM WAV output is validated and deleted; audio is not played or
+converted to MP3, regardless of `-f`. FFmpeg is not needed. Benchmark mode prints
+metrics to stdout and cannot be combined with `--test`, `--docker`, `--output-file`,
+or `--output-raw`. Failures return exit status 1 and no overall result; invalid
+options return 2. Keep voice, passage, speed, runtime versions, and machine load
+consistent when comparing results.
+
+On older virtual CPUs, a recent NumPy wheel may require unavailable x86-64-v2
+instructions. For Python 3.10–3.13, `python -m pip install 'numpy==2.2.6'` worked
+with the generic KVM CPU used in our benchmark testing.
+
 ## Run the test suite
 
 From the repository root, run:

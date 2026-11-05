@@ -22,7 +22,7 @@ module_dir = this_dir / module_name
 
 setup(
     name=module_name,
-    version='1.8.0',
+    version='1.9.0',
     description="Python client for Wyoming and local Kokoro text-to-speech.",
     packages=find_packages(),
     install_requires=requirements,

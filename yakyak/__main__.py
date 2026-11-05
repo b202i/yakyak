@@ -3,6 +3,7 @@
 import argparse
 import asyncio
 import logging
+import math
 import sys
 
 from yakyak import (
@@ -13,6 +14,7 @@ from yakyak import (
     run_kokoro_test,
     run_test,
 )
+from yakyak.benchmark import BENCHMARK_TEXT, run_benchmark
 
 DEFAULT_VOICE = "en_US-amy-medium"
 FFMPEG_NOT_FOUND = "ffmpeg is not installed or not found in PATH"
@@ -31,6 +33,20 @@ def get_input_file(file_path):
     return file_contents
 
 
+def positive_int(value):
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError("must be at least 1")
+    return number
+
+
+def positive_float(value):
+    number = float(value)
+    if not math.isfinite(number) or number <= 0:
+        raise argparse.ArgumentTypeError("must be a finite positive number")
+    return number
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='YakYak text-to-speech client',
@@ -41,8 +57,9 @@ def main():
                         help='Print debug messages to console')
     parser.add_argument('--host', type=str, default='localhost',
                         help='Wyoming service hostname or IP address')
-    parser.add_argument('-d', '--docker', action='store_true',
-                        help='Print example Wyoming-Piper docker-compose.yml to stdout')
+    actions = parser.add_mutually_exclusive_group()
+    actions.add_argument('-d', '--docker', action='store_true',
+                         help='Print example Wyoming-Piper docker-compose.yml to stdout')
     parser.add_argument('-p', '--port', type=int, default=10200,
                         help='Wyoming service port (default: 10200)')
     parser.add_argument('--backend', choices=['wyoming', 'kokoro'], default='wyoming',
@@ -61,14 +78,36 @@ def main():
                         help='Kokoro speech speed from 0.5 to 2.0 (default: 1.0)')
     parser.add_argument('--output-raw', '--output_raw', action='store_true',
                         help='Stream raw audio to stdout')
-    parser.add_argument('-t', '--test', type=str, choices=['mp3', 'wav'],
-                        help='Output format to end test')
+    actions.add_argument('-t', '--test', type=str, choices=['mp3', 'wav'],
+                         help='Output format to end test')
+    actions.add_argument('-b', '--benchmark', action='store_true',
+                         help='Benchmark speech/wall time using a built-in passage; exclude warm-up')
+    parser.add_argument('--benchmark-runs', type=positive_int, default=3,
+                        help='Measured benchmark runs after one excluded warm-up (default: 3)')
+    parser.add_argument('--benchmark-timeout', type=positive_float, default=600.0,
+                        help='Seconds allowed per benchmark attempt, including warm-up (default: 600)')
 
     args = parser.parse_args()
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
+
+    if args.benchmark:
+        if args.output_file != 'stdout' or args.output_raw:
+            parser.error('--benchmark prints metrics; do not combine it with --output-file or --output-raw')
+        if args.backend == 'kokoro' and not 0.5 <= args.speed <= 2.0:
+            parser.error('--speed must be between 0.5 and 2.0')
+        voice = args.voice or ('af_heart' if args.backend == 'kokoro' else DEFAULT_VOICE)
+        try:
+            text = BENCHMARK_TEXT if args.input_file == 'stdin' else get_input_file(args.input_file)
+        except (OSError, UnicodeError) as error:
+            logging.error("Could not read benchmark input: %s", error)
+            return 1
+        return run_benchmark(
+            args.backend, args.host, args.port, voice, args.language, args.speed,
+            runs=args.benchmark_runs, timeout=args.benchmark_timeout, text=text,
+        )
 
     if args.docker:
         print(
@@ -133,4 +172,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

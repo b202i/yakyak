@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yakyak"
-version = "1.8.0"
+version = "1.9.0"
 description = "Python client for Wyoming and local Kokoro text-to-speech"
 readme = "README.md"
 requires-python = ">=3.7"
